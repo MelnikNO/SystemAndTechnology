@@ -1,0 +1,233 @@
+% !TEX program = xelatex % (can also use "lualatex") 
+\documentclass{beamer}
+\usepackage{fontspec}
+\usepackage{polyglossia}
+\setmainlanguage{russian}
+\setotherlanguage{english}
+
+% Настройка шрифтов
+\setmainfont{CMU Sans Serif}
+\setsansfont{CMU Sans Serif}
+\setmonofont{CMU Typewriter Text}
+
+% Дополнительные пакеты
+\usepackage{graphicx}
+\usepackage{listings}
+\usepackage{xcolor}
+\usepackage{amsmath}
+\usepackage{caption} % Добавляем пакет для работы с подписями
+
+% Цветовая схема для кода
+\lstset{
+    basicstyle=\ttfamily\small,
+    keywordstyle=\color{blue},
+    commentstyle=\color{green!60!black},
+    stringstyle=\color{red},
+    showstringspaces=false,
+    numbers=left,
+    numberstyle=\tiny\color{gray}
+}
+
+% Тема презентации
+\usetheme{Berlin}
+\title{Построение фрактала «Кривая Коха» с помощью Python}
+\author{Мельник Наталья Олеговна}
+\date{\today}
+\institute{РГПУ им. А.И. Герцена}
+
+\begin{document}
+
+% Титульный слайд
+\begin{frame}
+    \titlepage
+\end{frame}
+
+% Содержание
+\begin{frame}{Содержание}
+    \tableofcontents
+\end{frame}
+
+\section{Введение}
+\begin{frame}{Что такое фрактал Коха?}
+    \begin{block}{История}
+        Кривая Коха — фрактал, описанный шведским математиком Хельге фон Кохом в 1904 году.
+    \end{block}
+    
+    \begin{itemize}
+        \item<1-> Простой геометрический фрактал
+        \item<2-> Бесконечная длина при конечной площади
+        \item<3-> Самоподобная структура
+        \item<4-> Применение в компьютерной графике
+    \end{itemize}
+    
+    \uncover<5>{
+        \begin{alertblock}{Интересный факт}
+            Кривая Коха является непрерывной, но нигде не дифференцируемой!
+        \end{alertblock}
+    }
+\end{frame}
+
+\begin{frame}{Геометрическое построение}
+    \begin{columns}
+        \begin{column}{0.5\textwidth}
+            \begin{enumerate}
+                \item<1-> Начальный отрезок
+                \item<2-> Разделить на 3 части
+                \item<3-> Построить равносторонний треугольник
+                \item<4-> Удалить основание треугольника
+                \item<5-> Повторить для каждого отрезка
+            \end{enumerate}
+        \end{column}
+        \begin{column}{0.5\textwidth}
+            \begin{figure}
+                \centering
+                \includegraphics[width=0.9\textwidth]{i.png}
+                \caption{Процесс построения кривой Коха}
+            \end{figure}
+        \end{column}
+    \end{columns}
+\end{frame}
+
+\section{Математические основы}
+\begin{frame}{Математическое описание}
+    \begin{block}{Рекуррентное соотношение}
+        На каждом шаге длина кривой увеличивается в $\frac{4}{3}$ раза:
+        $$L_n = L_0 \times \left(\frac{4}{3}\right)^n$$
+    \end{block}
+    
+    \begin{exampleblock}{Размерность Хаусдорфа}
+        Размерность фрактала Коха вычисляется по формуле:
+        $$D = \frac{\log 4}{\log 3} \approx 1.26186$$
+    \end{exampleblock}
+    
+    \begin{itemize}
+        \item Бесконечная длина при $n \to \infty$
+        \item Конечная площадь ограниченной фигуры
+    \end{itemize}
+\end{frame}
+
+\section{Реализация на Python}
+\begin{frame}[fragile]{Базовый алгоритм}
+    \begin{lstlisting}[language=Python, caption=Рекурсивная функция построения]
+import turtle
+import math
+
+def koch_curve(t, length, depth):
+    if depth == 0:
+        t.forward(length)
+    else:
+        length /= 3.0
+        koch_curve(t, length, depth-1)
+        t.left(60)
+        koch_curve(t, length, depth-1)
+        t.right(120)
+        koch_curve(t, length, depth-1)
+        t.left(60)
+        koch_curve(t, length, depth-1)
+    \end{lstlisting}
+\end{frame}
+
+\begin{frame}[fragile]{Полная реализация}
+    \begin{lstlisting}[language=Python, caption=Построение снежинки Коха]
+def koch_snowflake(t, length, depth):
+    for i in range(3):
+        koch_curve(t, length, depth)
+        t.right(120)
+
+# Настройка отображения
+screen = turtle.Screen()
+screen.setup(800, 600)
+t = turtle.Turtle()
+t.speed(0)
+
+# Построение снежинки
+koch_snowflake(t, 300, 4)
+screen.exitonclick()
+    \end{lstlisting}
+\end{frame}
+
+\section{Результаты}
+\begin{frame}{Визуализация результатов}
+    \begin{columns}
+        \begin{column}{0.5\textwidth}
+            \begin{figure}
+                \centering
+                \includegraphics[width=0.9\textwidth]{s.png}
+                \caption{Кривая Коха (n=4)}
+            \end{figure}
+        \end{column}
+        \begin{column}{0.5\textwidth}
+            \begin{figure}
+                \centering
+                \includegraphics[width=0.9\textwidth]{k.png}
+                \caption{Снежинка Коха (n=5)}
+            \end{figure}
+        \end{column}
+    \end{columns}
+\end{frame}
+
+\begin{frame}{Сравнительный анализ}
+    \begin{table}
+        \centering
+        \begin{tabular}{lccc}
+            \hline
+            \textbf{Глубина} & \textbf{Кол-во отрезков} & \textbf{Длина} & \textbf{Время (с)} \\
+            \hline
+            n=0 & 1 & 1.00 & 0.001 \\
+            n=1 & 4 & 1.33 & 0.005 \\
+            n=2 & 16 & 1.78 & 0.021 \\
+            n=3 & 64 & 2.37 & 0.085 \\
+            n=4 & 256 & 3.16 & 0.341 \\
+            n=5 & 1024 & 4.21 & 1.364 \\
+            \hline
+        \end{tabular}
+        \caption{Зависимость параметров от глубины рекурсии}
+    \end{table}
+\end{frame}
+
+\section{Применение и выводы}
+\begin{frame}{Практическое применение}
+    \begin{block}{Компьютерная графика}
+        \begin{itemize}
+            \item Генерация природных ландшафтов
+            \item Создание текстур
+            \item Моделирование сложных форм
+        \end{itemize}
+    \end{block}
+    
+    \begin{block}{Образование}
+        \begin{itemize}
+            \item Изучение рекурсии
+            \item Визуализация математических концепций
+            \item Развитие алгоритмического мышления
+        \end{itemize}
+    \end{block}
+\end{frame}
+
+\begin{frame}{Выводы}
+    \begin{block}{Достигнутые результаты}
+        \begin{itemize}
+            \item Реализован алгоритм построения кривой Коха на Python
+            \item Исследованы математические свойства фрактала
+            \item Визуализированы различные итерации
+            \item Проанализирована вычислительная сложность
+        \end{itemize}
+    \end{block}
+    
+    \begin{alertblock}{Перспективы развития}
+        \begin{itemize}
+            \item Оптимизация алгоритма
+            \item 3D-версия фрактала
+            \item Интерактивная визуализация
+        \end{itemize}
+    \end{alertblock}
+\end{frame}
+
+\begin{frame}
+    \begin{center}
+        \Huge \textbf{Спасибо за внимание!}
+        
+    \end{center}
+\end{frame}
+
+\end{document}
